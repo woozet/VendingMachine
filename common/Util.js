@@ -1,0 +1,27 @@
+var namespace = function namespace(namespace) {
+	if(!namespace) return Error('No arguments');
+	namespace = namespace.replace(/^\s*(\S+)\s*$/, '$1');	// Trim Process
+	var spaceArray = namespace.split(/\s*\.\s*/)	// push namespaces to Array
+		, i,
+		currentSpace = this;
+	
+	if(spaceArray) {
+		i = spaceArray.length;
+		spaceArray.reverse();	
+	}
+	
+	for(i -= 1; i >= 0; i -= 1) {
+		if(!currentSpace[spaceArray[i]]) {
+			currentSpace[spaceArray[i]] = {};
+		}
+		currentSpace = currentSpace[spaceArray[i]];
+	}
+};
+
+
+namespace('util');
+util = {
+	generateCapacity: function(max) {
+		return (Math.floor(Math.random() * 100)) % max;
+	}
+};

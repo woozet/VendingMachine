@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Vending Machine - Junhee Woo. 2012.3.13.</title>
+		<link rel="stylesheet" type="text/css" href="css/default.css" />
+		<script type="text/javascript" src="common/Util.js"></script>
+		<script type="text/javascript" src="models/Dispenser.js"></script>
+		<script type="text/javascript" src="common/Renderer.js"></script>
+	</head>
+	<body>
+		<!-- FireFox 에서 수량에 따라 Get One 버튼을 비활성화 하는 동작에서 동전투입 버튼이 영향을 받는 버그가 발견되어 태그 교체함 -->
+		<!-- 아이템 삽입을 위한 템플릿 부분 종료 -->
+		<div id="panel_left">
+		</div>
+		<div id="panel_right">
+			<div class="sub_panel_coin">
+				<div class="sub_panel_inserted_coin">
+					투입된 금액 : 
+					<span id="total_cost">0</span> 원
+				</div>
+				<div id="sub_panel_insert_button" class="sub_panel_insert_button">
+					<input type="button" class="coin_push" amount="50" value="50원" />
+					<input type="button" class="coin_push" amount="100" value="100원" />
+					<input type="button" class="coin_push" amount="500" value="500원" /><br />
+					<input type="button" class="coin_push" amount="1000" paper="true" value="1000원 (지폐)" />
+					<input type="button" class="coin_push" amount="0" value="반환레버"  />
+				</div>
+			</div>
+			<div class="sub_panel_message">
+				<div class="sub_panel_message_title">
+					Message
+				</div>
+				<textarea id="message" readonly></textarea><br />
+				<input type="button" id="clear_log" value="로그 지우기" />
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			window.onload = function() {
+				var items = [
+					new models.Product('001', 'PowerAde', 800, util.generateCapacity(6), 'images/product_1.jpg')
+					, new models.Product('002', 'Gatorade', 800, util.generateCapacity(6), 'images/product_2.jpg')
+					, new models.Product('003', 'Coke Zero', 600, util.generateCapacity(6), 'images/product_3.jpg', 'Coca-Cola Company')
+					, new models.Product('004', 'Mirinda Orange', 550, util.generateCapacity(6), 'images/product_4.jpg')
+					, new models.Product('005', 'Ceylon Tea', 1100, util.generateCapacity(6), 'images/product_5.jpg')
+					, new models.Product('006', 'G2', 950, util.generateCapacity(6), 'images/product_6.jpg')
+				], i = items.length;
+				models.Dispenser.setInventory(items);
+				
+				while((i -= 1) >= 0) {
+					common.Renderer.render(items[i]);
+				}
+				
+				// Event Definition
+				var button_panel = document.getElementById('sub_panel_insert_button');
+				var clear_log = document.getElementById('clear_log');
+				button_panel.addEventListener('click', function(e) {
+					if(e.target.className !== 'coin_push') return;
+					// invoke coinpush event to dispenser object
+					var amount = e.target.getAttribute('amount'),
+						isPaper = e.target.getAttribute('paper'),
+						returnArray, success, i;
+						
+					if(amount > 0) {
+						success = models.Dispenser.setCoin(new models.Coin(amount, isPaper));
+						if(success) {
+							common.Renderer.writeMessage(amount + '원이 투입되었습니다.');
+							common.Renderer.updateCost(models.Dispenser.getCurrentAmount());
+						}
+					} else {
+						returnArray = models.Dispenser.returnCoin();
+						if(returnArray.length < 1) {
+							common.Renderer.writeMessage('덜컥');
+						}
+						for(i = 0; i < returnArray.length; i++) {
+							common.Renderer.writeMessage(returnArray[i].won + '원이 반환.');
+							common.Renderer.updateCost(models.Dispenser.getCurrentAmount());	
+						}
+					}
+				});
+				clear_log.addEventListener('click', function(e) {
+					common.Renderer.clrMessageBox();
+				});
+			}
+		</script>
+	</body>
+</html>
