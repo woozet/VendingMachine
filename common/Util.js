@@ -21,7 +21,12 @@ var namespace = function namespace(namespace) {
 
 namespace('util');
 util = {
-	generateCapacity: function(max) {
+	generateCapacity: function (max) {
 		return (Math.floor(Math.random() * 100)) % max;
+	},
+	event: function (type, obj, context, func) {
+		obj.addEventListener(type, function (e) {
+			func.call(context, e);
+		});
 	}
 };
